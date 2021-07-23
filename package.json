@@ -12,6 +12,8 @@
     "@optimizely/optimizely-sdk": "^4.0.0",
     "@reduxjs/toolkit": "^1.3.2",
     "@sentry/browser": "^5.10.2",
+    "@solana/spl-token-registry": "^0.2.203",
+    "@solana/web3.js": "^1.22.0",
     "@types/jsmediatags": "^3.9.1",
     "@types/react-helmet": "^5.0.15",
     "@walletconnect/web3-provider": "^1.3.6",

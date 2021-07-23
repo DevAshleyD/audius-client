@@ -7,6 +7,8 @@ import {
   IconPencil,
   Modal
 } from '@audius/stems'
+import { TokenListProvider, TokenInfo, ENV } from '@solana/spl-token-registry'
+import { Connection, PublicKey } from '@solana/web3.js'
 import Spin from 'antd/lib/spin'
 import cn from 'classnames'
 import {
@@ -56,6 +58,68 @@ export const collectibleMessages = {
   editInBrowser:
     'Visit audius.co from a desktop browser to hide and sort your NFT collectibles.',
   videoNotSupported: 'Your browser does not support the video tag.'
+}
+
+const connection = new Connection(
+  'https://api.mainnet-beta.solana.com',
+  'confirmed'
+)
+
+export const SolanaCollectibles = () => {
+  const [tokenMap, setTokenMap] = useState<{ [address: string]: TokenInfo }>({})
+
+  useEffect(() => {
+    new TokenListProvider().resolve().then(tokens => {
+      // new TokenListProvider().resolve().then(async tokens => {
+      const tokenList = tokens.filterByChainId(ENV.MainnetBeta).getList()
+      // const tokenSupplies = await Promise.all(
+      //   tokenList.slice(0, 10).map(async token => ({
+      //     address: token.address,
+      //     supply: await connection.getTokenSupply(new PublicKey(token.address))
+      //   }))
+      // )
+      // tokenList.filter(token => {
+      //   const supply = tokenSupplies.find(
+      //     supply => supply.address === token.address
+      //   )
+      //   if (!supply) return false
+      //   const isOnlyOne = parseInt(supply.supply.value.amount) === 1
+      //   const isWhole = supply.supply.value.decimals === 0
+      //   return isOnlyOne && isWhole
+      // })
+
+      setTokenMap(
+        tokenList.reduce((map: any, item) => {
+          map[item.address] = item
+          return map
+        }, {})
+      )
+    })
+  }, [setTokenMap])
+
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+      {Object.keys(tokenMap).map(address => (
+        <div
+          key={address}
+          style={{ alignItems: 'center', justifyContent: 'center' }}
+        >
+          <div style={{ margin: '8px' }}>
+            {tokenMap[address].logoURI && (
+              <img
+                src={tokenMap[address].logoURI}
+                width='200'
+                height='200'
+                style={{ borderRadius: '16px' }}
+              />
+            )}
+          </div>
+          <div style={{ fontSize: '24px' }}>{tokenMap[address].name}</div>
+          <div style={{ fontSize: '24px' }}>{tokenMap[address].symbol}</div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 const CollectiblesPage: React.FC<{
@@ -354,6 +418,8 @@ const CollectiblesPage: React.FC<{
             />
           )}
         </div>
+
+        <SolanaCollectibles />
 
         <div className={styles.content}>
           {isLoading ? (
